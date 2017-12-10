@@ -26,7 +26,7 @@ namespace Lts.Sift.Voting.Api
         /// <returns>
         /// The specified referendum if found, otherwise null.
         /// </returns>
-        public Referendum Get(string id)
+        public Referendum Get(int id)
         {
             return null;
         }

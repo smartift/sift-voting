@@ -14,7 +14,7 @@
         /// <summary>
         /// Gets the count of votes that this voter has.
         /// </summary>
-        public uint VoteCount { get; private set; }
+        public int VoteCount { get; private set; }
 
         /// <summary>
         /// Gets or sets the vote that this voter has made.  A value of 0 indicates the voter has not voted, a value of 1 indicates the first answer from the Answers array within VoteInformation.
@@ -43,7 +43,7 @@
         /// <param name="signedVoteMessage">
         /// The signed vote message that this voter used to cast their vote.
         /// </param>
-        public Voter(string address, uint voteCount, int vote, string signedVoteMessage)
+        public Voter(string address, int voteCount, int vote, string signedVoteMessage)
         {
             Address = address;
             VoteCount = voteCount;

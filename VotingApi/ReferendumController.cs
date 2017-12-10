@@ -27,7 +27,7 @@ namespace Lts.Sift.Voting.Api
         [SwaggerResponse(HttpStatusCode.OK, Type = typeof(Referendum), Description = "Full information about the specified referendum, including current voting information.")]
         [SwaggerResponse(HttpStatusCode.NotFound, Description = "The specified vote could not be found")]
         [SwaggerResponse(HttpStatusCode.Unauthorized, Description = "The supplied authentication details are not valid or do not grant access to this method.")]
-        public HttpResponseMessage ReferendumLookup(HttpRequestMessage requestMessage, string id)
+        public HttpResponseMessage ReferendumLookup(HttpRequestMessage requestMessage, int id)
         {
             // Lookup the referendum and 404 it if we cannot find it, otherwise return it as-is
             using (ReferendumRepository repo = new ReferendumRepository())

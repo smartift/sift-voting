@@ -10,7 +10,7 @@ namespace Lts.Sift.Voting.Api
         #region Properties
         /// <summary>
         /// Gets the unique ID for this referendum
-        public string Id { get; private set; }
+        public int Id { get; private set; }
 
         /// <summary>
         /// Gets the time that voting may commence for this vote (in UTC).
@@ -68,7 +68,7 @@ namespace Lts.Sift.Voting.Api
         /// <param name="createTime">
         /// The time that this vote was created (in UTC).
         /// </param>
-        public Referendum(string id, DateTime startTime, DateTime endTime, string question, string[] answers, Voter[] electorate, DateTime createTime)
+        public Referendum(int id, DateTime startTime, DateTime endTime, string question, string[] answers, Voter[] electorate, DateTime createTime)
         {
             Id = id;
             StartTime = startTime;
