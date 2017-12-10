@@ -47,7 +47,7 @@ BEGIN
 	SET NOCOUNT ON
 
 	-- Lookup the referendum, then answers then voters as three datasets
-	SELECT TOP 1 Question, StartTime, EndTime, CreateTime FROM Referendum WHERE Id = @id
+	SELECT TOP 1 Id, Question, StartTime, EndTime, CreateTime FROM Referendum WHERE Id = @id
 	SELECT Answer FROM ReferendumAnswer WHERE ReferendumId = @id ORDER BY DisplayOrder ASC
 	SELECT [Address], VoteCount, Vote, SignedVoteMessage FROM Voter WHERE ReferendumId = @id ORDER BY VoteCount DESC
 

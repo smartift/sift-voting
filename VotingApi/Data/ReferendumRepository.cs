@@ -1,4 +1,5 @@
 ﻿using Guytp.Data;
+using System.Linq;
 
 namespace Lts.Sift.Voting.Api
 {
@@ -28,7 +29,15 @@ namespace Lts.Sift.Voting.Api
         /// </returns>
         public Referendum Get(int id)
         {
-            return null;
+            using (StoredProcedureDataSetReader reader = ExecuteProcedureReader(new ReferendumGetStoredProcedure(id)))
+            {
+                ReferendumGetSummaryRow summaryRow = reader.GetDataSetRow<ReferendumGetSummaryRow>();
+                if (summaryRow == null)
+                    return null;
+                ReferendumGetAnswerRow[] answerRows = reader.GetDataSetList<ReferendumGetAnswerRow>();
+                ReferendumGetVoterRow[] voterRows = reader.GetDataSetList<ReferendumGetVoterRow>();
+                return new Referendum(id, summaryRow.StartTime, summaryRow.EndTime, summaryRow.Question, answerRows == null ? null : answerRows.Select(ar => ar.Answer).ToArray(), voterRows == null ? null : voterRows.Select(vr => new Voter(vr.Address, vr.VoteCount, vr.Vote, vr.SignedVoteMessage)).ToArray(), summaryRow.CreateTime);
+            }
         }
     }
 }

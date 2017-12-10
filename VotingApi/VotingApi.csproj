@@ -100,6 +100,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\ReferendumGetAnswerRow.cs" />
+    <Compile Include="Data\ReferendumGetStoredProcedure.cs" />
+    <Compile Include="Data\ReferendumGetSummaryRow.cs" />
+    <Compile Include="Data\ReferendumGetVoterRow.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Referendum.cs" />
