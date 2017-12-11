@@ -96,3 +96,11 @@ td {
 thead td {
     font-weight: bold;
 }
+
+#errorContainer p, #errorContainer li {
+    color: indianred;
+}
+
+.validation-error {
+    background-color: indianred!important
+}

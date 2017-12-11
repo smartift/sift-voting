@@ -1,4 +1,4 @@
-<html>
+﻿<html>
 <head>
     <meta charset="utf-8">
     <script type="text/javascript" src="js/sift-voting.js"></script>
@@ -9,10 +9,12 @@
     <div id="disabledOverlay" style="background-color: gray; opacity: 0.8; width: 100%; height: 100%; position:absolute; top: 0; left: 0; display: none">
     </div>
 
-    <div id="errorContainer" style="display: none; color: indianred;">
+    <div id="errorContainer" class="containerBox" style="display: none;">
+        <h1>Errors</h1>
         <p>There were some problems processing your request:</p>
         <ul id="errorList" />
     </div>
+
 
     <div id="voteSection" style="display: none;">
         <div class="containerBox">
@@ -44,28 +46,20 @@
                         <textarea id="signature"></textarea>
                     </div>
                     <div class="inputRow">
-                        <input type="button" value="Vote" />
+                        <input type="button" value="Vote" onclick="performVote();" />
                     </div>
                 </form>
             </div>
+            <div id="voteSuccessful" style="display: none;">
+                <p>Your vote was successfully cast.  You can see the updated voting results below.</p>
+            </div>
         </div>
-        <!--
-            Vote Button
-                - Check for empty values and decorate
-                - Validate ethereum address is on voting list with voteCount > 0
-                - Submit if OK
-                - Backend validates Ethereum address / empty values and validation response if appropriate
-                - Backend validates signature - error response if not correct
-                - If all OK hide the main content and show "vote has been successfully recorded" plus update the table below and results container
-            -->
 
         <div id="resultsContainer" class="containerBox" style="display: none;">
             <h1>Results</h1>
             <div id="results">
             </div>
         </div>
-        <!-- Results section - each answer and % vote so far -->
-
         <div class="containerBox">
             <h2>Voters</h2>
             <input type="checkbox" id="showCastOnly" onchange="recalculateVoters();" />
@@ -79,8 +73,7 @@
                         <td>Signature</td>
                     </tr>
                 </thead>
-                <tbody>
-                </tbody>
+                <tbody></tbody>
             </table>
             <input type="text" id="copySignatureInput" style="height: 1px; width: 1px; color: #f2f2f2; background-color: #f2f2f2; border: none; padding: 0px; margin: 0px; border-radius: 0px; display: none" value="blah" readonly="readonly" />
         </div>

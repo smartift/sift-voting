@@ -173,7 +173,7 @@ function recalculateMessageToSign() {
     var index = document.getElementById('voteAnswer').selectedIndex;
     var address = document.getElementById('voteAddress').value;
     if (index >= 0 && id && address)
-        msg = 'V' + id + 'A' + (index + 1) + ' ' + address;
+        msg = 'V' + id + ' A' + (index + 1) + ' ' + address;
     document.getElementById('messageToSign').value = msg;
 }
 
@@ -245,14 +245,15 @@ function showErrors(errors) {
         return;
 
     // Show the error details
-    var errorContainer = document.getElementById("errorContainer");
+    var errorList = document.getElementById("errorList");
+    errorList.innerHTML = "";
     for (var i = 0; i < errors.length; i++) {
         var li = document.createElement("li");
         li.style.fontSize = "14px";
         li.innerHTML = errors[i];
         errorList.appendChild(li);
     }
-    errorContainer.style.display = "table";
+    document.getElementById("errorContainer").style.display = null;
 }
 
 function recalculateVoters() {
@@ -283,4 +284,101 @@ function recalculateVoters() {
         // Add signature data
         signatureCell.innerHTML = voter.Vote == 0 ? '' : '<a href="javascript:copySignature(\'' + voter.SignedVoteMessage + '\');">Copy</a>';
     }
+}
+
+function performVote() {
+    // Clear validation first
+    document.getElementById('voteAddress').classList.remove('validation-error');
+    document.getElementById('voteAnswer').classList.remove('validation-error');
+    document.getElementById('signature').classList.remove('validation-error');
+    document.getElementById("errorContainer").style.display = 'none';
+
+    // Perform whatever client-side validation that we can 
+    var errors = [];
+    var address = document.getElementById('voteAddress').value;
+    var answer = document.getElementById('voteAnswer').selectedIndex + 1;
+    var signature = document.getElementById('signature').value;
+    if (!address) {
+        document.getElementById('voteAddress').classList.add('validation-error');
+        errors.push('Your Ethereum address is required');
+    }
+    else if (address.length != 42) {
+        document.getElementById('voteAddress').classList.add('validation-error');
+        errors.push('Your Ethereum address is not valid');
+    }
+    else {
+        var found = false;
+        for (var i = 0; i < referendum.Electorate.length; i++) {
+            var voter = referendum.Electorate[i];
+            if (voter.Address != address)
+                continue;
+            if (voter.VoteCount == 0)
+                continue;
+            found = true;
+            break;
+        }
+        if (!found) {
+            document.getElementById('voteAddress').classList.add('validation-error');
+            errors.push('Your Ethereum address is not entitled to vote');
+        }
+    }
+    if (!answer || answer < 1) {
+        document.getElementById('voteAnswer').classList.add('validation-error');
+        errors.push('Your need to select your voting intention');
+    }
+    if (!signature) {
+        document.getElementById('signature').classList.add('validation-error');
+        errors.push('Your need to sign your vote');
+    }
+
+    // Show any errors we have
+    if (errors.length > 0) {
+        showErrors(errors);
+        return;
+    }
+
+    // Construct JSON request
+    var request = new Object();
+    request.Address = address;
+    request.Vote = answer;
+    request.SignedVoteMessage = signature;
+    request.Id = id;
+
+    // We want to get a list of all votes here
+    apiCallXhr = new XMLHttpRequest();
+    apiCallXhr.open("PUT", baseUrl + "referendum/" + id, true);
+    apiCallXhr.onload = onApiSuccess;
+    apiCallXhr.onerror = onApiError;
+    apiCallXhr.onabort = onApiAbort;
+    apiCallXhr.ontimeout = onApiTimeout;
+    configurePostApiSuccess = function (json) {
+        // No 404 or 500 returned elsewhere indicates a success, so we can update the UI and voting sections
+        apiCallXhr = null;
+
+        // Update our record locally for this voter
+        for (var i = 0; i < referendum.Electorate.length; i++) {
+            var voter = referendum.Electorate[i];
+            if (voter.Address != address)
+                continue;
+            voter.Vote = answer;
+            voter.SignedVoteMessage = signature;
+            break;
+        }
+
+        // Update the UI
+        recalculateVoters();
+        document.getElementById('castVoteSection').style.display = 'none';
+        document.getElementById('voteSuccessful').style.display = null;
+
+        // Reenable the UI
+        document.getElementById("disabledOverlay").style.display = "none";
+    }
+    apiCallXhr.send(JSON.stringify(request));
+
+    // At this point it looks good from a client-side perspective so submit it 
+    /*
+        - Red outline for errors
+        - Backend validates vote dates, Ethereum address / empty values and validation response if appropriate
+        - Backend validates signature - error response if not correct
+    */
 }
