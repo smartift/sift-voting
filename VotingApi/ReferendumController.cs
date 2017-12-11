@@ -26,7 +26,6 @@ namespace Lts.Sift.Voting.Api
         [Route("referendum/{id}")]
         [SwaggerResponse(HttpStatusCode.OK, Type = typeof(Referendum), Description = "Full information about the specified referendum, including current voting information.")]
         [SwaggerResponse(HttpStatusCode.NotFound, Description = "The specified vote could not be found")]
-        [SwaggerResponse(HttpStatusCode.Unauthorized, Description = "The supplied authentication details are not valid or do not grant access to this method.")]
         public HttpResponseMessage ReferendumLookup(HttpRequestMessage requestMessage, int id)
         {
             // Lookup the referendum and 404 it if we cannot find it, otherwise return it as-is
@@ -36,6 +35,27 @@ namespace Lts.Sift.Voting.Api
                 if (referendum == null)
                     return requestMessage.CreateResponse(HttpStatusCode.NotFound);
                 return requestMessage.CreateResponse(HttpStatusCode.OK, referendum);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves summary information about all referendums - excluding the voter and answer details.
+        /// </summary>
+        /// <param name="requestMessage">
+        /// The HTTP Request Message detailing everything about this call.
+        /// </param>
+        /// <returns>
+        /// Summary details about all referendum.
+        /// </returns>
+        [HttpGet]
+        [Route("referendum")]
+        [SwaggerResponse(HttpStatusCode.OK, Type = typeof(Referendum), Description = "Summary details about all referendum, excluding voter and answer details.")]
+        public HttpResponseMessage ReferendumSummary(HttpRequestMessage requestMessage)
+        {
+            using (ReferendumRepository repo = new ReferendumRepository())
+            {
+                Referendum[] referendums = repo.GetSummaries();
+                return requestMessage.CreateResponse(HttpStatusCode.OK, referendums);
             }
         }
     }

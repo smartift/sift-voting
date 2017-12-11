@@ -55,3 +55,18 @@ BEGIN
 	return 0
 END
 GO
+
+
+CREATE PROCEDURE ReferendumGetSummaries
+AS
+BEGIN
+	-- Turn off row count
+	SET NOCOUNT ON
+
+	-- Lookup the referendum, then answers then voters as three datasets
+	SELECT Id, Question, StartTime, EndTime, CreateTime FROM Referendum ORDER BY EndTime DESC, Id DESC
+
+	-- Return OK
+	return 0
+END
+GO

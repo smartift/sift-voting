@@ -39,5 +39,22 @@ namespace Lts.Sift.Voting.Api
                 return new Referendum(id, summaryRow.StartTime, summaryRow.EndTime, summaryRow.Question, answerRows == null ? null : answerRows.Select(ar => ar.Answer).ToArray(), voterRows == null ? null : voterRows.Select(vr => new Voter(vr.Address, vr.VoteCount, vr.Vote, vr.SignedVoteMessage)).ToArray(), summaryRow.CreateTime);
             }
         }
+
+        /// <summary>
+        /// Gets all referendums from the database excluding answer and voter rows.
+        /// </summary>
+        /// <returns>
+        /// An array of all referendums from the database.
+        /// </returns>
+        public Referendum[] GetSummaries()
+        {
+            using (StoredProcedureDataSetReader reader = ExecuteProcedureReader(new ReferendumGetSummariesStoredProcedure()))
+            {
+                ReferendumGetSummaryRow[] summaryRows = reader.GetDataSetList<ReferendumGetSummaryRow>();
+                if (summaryRows == null)
+                    return null;
+                return summaryRows.Select(r => new Referendum(r.Id, r.StartTime, r.EndTime, r.Question, null, null, r.CreateTime)).ToArray();
+            }
+        }
     }
 }
