@@ -1,0 +1,89 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="js/sift-voting.js"></script>
+    <link rel='stylesheet' type='text/css' href='css/sift-voting.css'>
+    <title>SIFT Voting</title>
+</head>
+<body onload="votePageLoad();">
+    <div id="disabledOverlay" style="background-color: gray; opacity: 0.8; width: 100%; height: 100%; position:absolute; top: 0; left: 0; display: none">
+    </div>
+
+    <div id="errorContainer" style="display: none; color: indianred;">
+        <p>There were some problems processing your request:</p>
+        <ul id="errorList" />
+    </div>
+
+    <div id="voteSection" style="display: none;">
+        <div class="containerBox">
+            <h1 id="questionHeader"></h1>
+            <div id="votingNotOpenSection" style="display: none;">
+                <p>Voting has not yet opened for this referendum.  You will be able to start voting at <span id="voteOpensTime"></span>.</p>
+            </div>
+
+            <div id="votingClosedSection" style="display: none;">
+                <p>Voting has now closed for this referendum, but you can see the results below.  Voting closed at <span id="voteEndedTime"></span>.</p>
+            </div>
+            <div id="castVoteSection" style="display: none;">
+                <p>Voting is now open in this referendum.  If you have a right to vote you can cast your vote below.  The full voter ledger along with current voting results is shown below.</p>
+                <form id="castVoteForm">
+                    <div class="inputRow">
+                        <span>Ethereum Address</span> <br />
+                        <input type="text" id="voteAddress" onkeyup="recalculateMessageToSign();" onchange="recalculateMessageToSign();" />
+                    </div>
+                    <div class="inputRow">
+                        <span>Vote</span><br />
+                        <select id="voteAnswer" onchange="recalculateMessageToSign();"></select>
+                    </div>
+                    <div class="inputRow">
+                        <span>Message to Sign (<a href="javascript:copyMessageToSign();">copy</a>)</span><br />
+                        <input type="text" id="messageToSign" readonly="readonly" />
+                    </div>
+                    <div class="inputRow">
+                        <span>Signature (<a href="https://www.myetherwallet.com/signmsg.html" target="_blank">MyEtherWallet</a>)</span><br />
+                        <textarea id="signature"></textarea>
+                    </div>
+                    <div class="inputRow">
+                        <input type="button" value="Vote" />
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!--
+            Vote Button
+                - Check for empty values and decorate
+                - Validate ethereum address is on voting list with voteCount > 0
+                - Submit if OK
+                - Backend validates Ethereum address / empty values and validation response if appropriate
+                - Backend validates signature - error response if not correct
+                - If all OK hide the main content and show "vote has been successfully recorded" plus update the table below and results container
+            -->
+
+        <div id="resultsContainer" class="containerBox" style="display: none;">
+            <h1>Results</h1>
+            <div id="results">
+            </div>
+        </div>
+        <!-- Results section - each answer and % vote so far -->
+
+        <div class="containerBox">
+            <h2>Voters</h2>
+            <input type="checkbox" id="showCastOnly" onchange="recalculateVoters();" />
+            <label for="showCastOnly">Cast Only</label>
+            <table id="voterTable">
+                <thead>
+                    <tr>
+                        <td>Address</td>
+                        <td>Count</td>
+                        <td>Vote</td>
+                        <td>Signature</td>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <input type="text" id="copySignatureInput" style="height: 1px; width: 1px; color: #f2f2f2; background-color: #f2f2f2; border: none; padding: 0px; margin: 0px; border-radius: 0px; display: none" value="blah" readonly="readonly" />
+        </div>
+    </div>
+</body>
+</html>

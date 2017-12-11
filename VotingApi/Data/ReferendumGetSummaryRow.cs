@@ -54,7 +54,7 @@ namespace Lts.Sift.Voting.Api
         /// The time that this vote was created (in UTC).
         /// </param>
         [StoredProcedureDataSetConstructor]
-        public ReferendumGetSummaryRow(int id, DateTime startTime, DateTime endTime, string question, DateTime createTime)
+        public ReferendumGetSummaryRow(int id, string question, DateTime startTime, DateTime endTime, DateTime createTime)
         {
             Id = id;
             StartTime = startTime;
