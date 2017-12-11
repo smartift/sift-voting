@@ -39,6 +39,28 @@ namespace Lts.Sift.Voting.Api
         }
 
         /// <summary>
+        /// Votes in a specific referendum.
+        /// </summary>
+        /// <param name="requestMessage">
+        /// The HTTP Request Message detailing everything about this call.
+        /// </param>
+        /// <param name="id">
+        /// The ID of the referendum to vote in.
+        /// </param>
+        /// <param name="request">
+        /// Full details of the request to vote in.
+        /// </param>
+        [HttpPut]
+        [Route("referendum/{id}")]
+        [SwaggerResponse(HttpStatusCode.NoContent, Description = "The vote was successful.")]
+        [SwaggerResponse(HttpStatusCode.BadRequest, Type = typeof(ValidationResponse), Description = "The request failed due to one or more errors.")]
+        [SwaggerResponse(HttpStatusCode.NotFound, Description = "The specified vote could not be found")]
+        public HttpResponseMessage ReferendumVote(HttpRequestMessage requestMessage, int id, VoteRequest request)
+        {
+            return requestMessage.CreateResponse(HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
         /// Retrieves summary information about all referendums - excluding the voter and answer details.
         /// </summary>
         /// <param name="requestMessage">

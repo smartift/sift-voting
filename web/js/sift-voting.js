@@ -116,48 +116,8 @@ function votePageLoad() {
         }
         voteAnswer.selectedIndex = -1;
 
-        // Count total votes cast
-        var totalCast = 0;
-        var votes = [];
-        for (var i = 0; i < referendum.Answers.length; i++)
-            votes.push(0);
-        for (var i = 0; i < referendum.Electorate.length; i++) {
-            var voter = referendum.Electorate[i];
-            if (voter.Vote < 1)
-                continue;
-            totalCast += voter.VoteCount;
-            votes[voter.Vote - 1] += voter.VoteCount;
-        }
-
-        // Add the results pane
-        var results = document.getElementById('results');
-        for (var i = 0; i < referendum.Answers.length; i++) {
-            // Get voting results so far for this vote
-            var voteCount = votes[i];
-            var percentage = totalCast == 0 ? '0%' : ((voteCount / totalCast) * 100).toFixed(1) + '%';
-
-            // Create the HTML for the voting percentage bar
-            var p = document.createElement("p");
-            var labelText = referendum.Answers[i];
-            if (voteCount == 0)
-                labelText = referendum.Answers[i] + ' (no votes)';
-            else if (voteCount == 1)
-                labelText = referendum.Answers[i] + ' (1 vote)';
-            else
-                labelText = referendum.Answers[i] + ' (' + voteCount + ' votes)';
-            p.innerText = labelText;
-            results.appendChild(p);
-            var outerDiv = document.createElement("div");
-            outerDiv.className = "percentage-background";
-            p.appendChild(outerDiv);
-            var innerDiv = document.createElement("div");
-            innerDiv.className = "percentage-inside";
-            innerDiv.style.width = percentage;
-            var span = document.createElement("span");
-            span.innerText = percentage;
-            innerDiv.appendChild(span);
-            outerDiv.appendChild(innerDiv);
-        }
+        // Update results pane
+        recalculateResults();
 
         // Update voter list
         recalculateVoters();
@@ -199,7 +159,7 @@ function onApiSuccess(e) {
         return;
 
     // Check for 400 response - bad data and show validators
-    if (apiCallXhr.status === 200) {
+    if (apiCallXhr.status === 200 || apiCallXhr.status == 204) {
         configurePostApiSuccess(apiCallXhr.responseText);
     } else if (apiCallXhr.status === 400) {
         configurePostApiValidationError(apiCallXhr.responseText);
@@ -239,6 +199,21 @@ function configurePostApiError(message) {
     apiCallXhr = null;
 }
 
+function configurePostApiValidationError(json) {
+    // Our response object includes invalid fields which we must set to be in an error state as well as
+    // error messages
+    var validationResponse = JSON.parse(json);
+    if (validationResponse.InvalidFields)
+        for (var i = 0; i < validationResponse.InvalidFields.length; i++)
+            document.getElementById(validationResponse.InvalidFields[i]).classList.add("validation-error");
+    showErrors(validationResponse.ErrorMessages);
+
+    // Enable the UI
+    document.getElementById("disabledOverlay").style.display = "none";
+
+    // Mark that we are done with this request
+    apiCallXhr = null;
+}
 function showErrors(errors) {
     // Return if no errors
     if (!errors || errors.length == 0)
@@ -254,6 +229,52 @@ function showErrors(errors) {
         errorList.appendChild(li);
     }
     document.getElementById("errorContainer").style.display = null;
+}
+
+function recalculateResults() {
+    // Count total votes cast
+    var totalCast = 0;
+    var votes = [];
+    for (var i = 0; i < referendum.Answers.length; i++)
+        votes.push(0);
+    for (var i = 0; i < referendum.Electorate.length; i++) {
+        var voter = referendum.Electorate[i];
+        if (voter.Vote < 1)
+            continue;
+        totalCast += voter.VoteCount;
+        votes[voter.Vote - 1] += voter.VoteCount;
+    }
+
+    // Add the results pane
+    var results = document.getElementById('results');
+    results.innerHTML = null;
+    for (var i = 0; i < referendum.Answers.length; i++) {
+        // Get voting results so far for this vote
+        var voteCount = votes[i];
+        var percentage = totalCast == 0 ? '0%' : ((voteCount / totalCast) * 100).toFixed(1) + '%';
+
+        // Create the HTML for the voting percentage bar
+        var p = document.createElement("p");
+        var labelText = referendum.Answers[i];
+        if (voteCount == 0)
+            labelText = referendum.Answers[i] + ' (no votes)';
+        else if (voteCount == 1)
+            labelText = referendum.Answers[i] + ' (1 vote)';
+        else
+            labelText = referendum.Answers[i] + ' (' + voteCount + ' votes)';
+        p.innerText = labelText;
+        results.appendChild(p);
+        var outerDiv = document.createElement("div");
+        outerDiv.className = "percentage-background";
+        p.appendChild(outerDiv);
+        var innerDiv = document.createElement("div");
+        innerDiv.className = "percentage-inside";
+        innerDiv.style.width = percentage;
+        var span = document.createElement("span");
+        span.innerText = percentage;
+        innerDiv.appendChild(span);
+        outerDiv.appendChild(innerDiv);
+    }
 }
 
 function recalculateVoters() {
@@ -342,17 +363,17 @@ function performVote() {
     request.Address = address;
     request.Vote = answer;
     request.SignedVoteMessage = signature;
-    request.Id = id;
 
     // We want to get a list of all votes here
     apiCallXhr = new XMLHttpRequest();
     apiCallXhr.open("PUT", baseUrl + "referendum/" + id, true);
+    apiCallXhr.setRequestHeader("Content-type", "application/json");
     apiCallXhr.onload = onApiSuccess;
     apiCallXhr.onerror = onApiError;
     apiCallXhr.onabort = onApiAbort;
     apiCallXhr.ontimeout = onApiTimeout;
     configurePostApiSuccess = function (json) {
-        // No 404 or 500 returned elsewhere indicates a success, so we can update the UI and voting sections
+        // Mark that we are done with this request
         apiCallXhr = null;
 
         // Update our record locally for this voter
@@ -367,6 +388,7 @@ function performVote() {
 
         // Update the UI
         recalculateVoters();
+        recalculateResults();
         document.getElementById('castVoteSection').style.display = 'none';
         document.getElementById('voteSuccessful').style.display = null;
 
