@@ -31,7 +31,9 @@ CREATE TABLE Voter
 	[Address] CHAR(42) NOT NULL,
 	VoteCount INT NOT NULL,
 	Vote INT DEFAULT 0 NOT NULL,
-	SignedVoteMessage NVARCHAR(MAX) NULL,
+	SignedVoteMessage CHAR(132) NULL,
+	CreateTime DATETIME NOT NULL DEFAULT GETUTCDATE(),
+	UpdateTime DATETIME NOT NULL DEFAULT GETUTCDATE(),
 	PRIMARY KEY (ReferendumId, [Address]),
 	FOREIGN KEY (ReferendumId) REFERENCES Referendum(Id)
 )
@@ -68,5 +70,24 @@ BEGIN
 
 	-- Return OK
 	return 0
+END
+GO
+
+CREATE PROCEDURE ReferendumVote
+(
+	@referendumId INT,
+	@address CHAR(42),
+	@vote INT,
+	@signature CHAR(132)
+)
+AS
+BEGIN
+	-- Turn off row count
+	SET NOCOUNT ON
+
+	-- Update the row, if it exists
+	UPDATE Voter SET Vote=@vote, SignedVoteMessage=@signature WHERE [Address] = @address AND ReferendumId = @referendumId
+
+	-- Return OK
 END
 GO
