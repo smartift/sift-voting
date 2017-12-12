@@ -1,4 +1,4 @@
-var baseUrl = "http://localhost:60000/sift-voting/1/";
+var baseUrl = "https://lts-api.com/sift-voting/1/";
 var apiCallXhr = null;
 var referendum = null;
 var id = null;
@@ -334,7 +334,7 @@ function performVote() {
         var found = false;
         for (var i = 0; i < referendum.Electorate.length; i++) {
             var voter = referendum.Electorate[i];
-            if (voter.Address !== address)
+            if (voter.Address.toLowerCase() !== address.toLowerCase())
                 continue;
             if (voter.VoteCount === 0)
                 continue;
@@ -364,6 +364,7 @@ function performVote() {
                 errors.push('Your signature must be in either MyEtherWallet or hex format');
             }
         } catch (e) {
+            signature = '';
             document.getElementById('signature').classList.add('validation-error');
             errors.push('Your signature must be in either MyEtherWallet or hex format');
         }
