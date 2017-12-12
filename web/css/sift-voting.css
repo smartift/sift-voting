@@ -6,7 +6,7 @@ body {
     border-radius: 5px;
     background-color: #f2f2f2;
     padding: 40px;
-    width: 600px;
+    width: 800px;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 30px;
@@ -15,9 +15,6 @@ body {
 form .inputRow {
     margin-bottom: 20px;
 }
-
-    form .inputRow span {
-    }
 
 input[type=text] {
     width: 100%;

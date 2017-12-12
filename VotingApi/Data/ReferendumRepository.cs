@@ -56,5 +56,25 @@ namespace Lts.Sift.Voting.Api
                 return summaryRows.Select(r => new Referendum(r.Id, r.StartTime, r.EndTime, r.Question, null, null, r.CreateTime)).ToArray();
             }
         }
+
+        /// <summary>
+        /// Updates a particular voter's record in a referendum.  If the voter does not exist the vote will not be registered.
+        /// </summary>
+        /// <param name="referendumId">
+        /// The referendum to register the vote for.
+        /// </param>
+        /// <param name="address">
+        /// The address to register the vote for.
+        /// </param>
+        /// <param name="vote">
+        /// The vote to cast.
+        /// </param>
+        /// <param name="signature">
+        /// The signature for the vote.
+        /// </param>
+        public void Vote(int referendumId, string address, int vote, string signature)
+        {
+            ExecuteProcedureNonQuery(new ReferendumVoteStoredProcedure(referendumId, address, vote, signature));
+        }
     }
 }

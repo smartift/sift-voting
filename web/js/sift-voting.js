@@ -9,7 +9,7 @@ function getQueryVariable(variable) {
     var vars = query.split('&');
     for (var i = 0; i < vars.length; i++) {
         var pair = vars[i].split('=');
-        if (decodeURIComponent(pair[0]) == variable)
+        if (decodeURIComponent(pair[0]) === variable)
             return decodeURIComponent(pair[1]);
     }
     return null;
@@ -133,7 +133,7 @@ function recalculateMessageToSign() {
     var index = document.getElementById('voteAnswer').selectedIndex;
     var address = document.getElementById('voteAddress').value;
     if (index >= 0 && id && address)
-        msg = 'V' + id + ' A' + (index + 1) + ' ' + address;
+        msg = 'R' + id + ' V' + (index + 1) + ' ' + address;
     document.getElementById('messageToSign').value = msg;
 }
 
@@ -155,11 +155,11 @@ function copySignature(signature) {
 
 function onApiSuccess(e) {
     // Ignore non-ready states
-    if (apiCallXhr.readyState != 4)
+    if (apiCallXhr.readyState !== 4)
         return;
 
     // Check for 400 response - bad data and show validators
-    if (apiCallXhr.status === 200 || apiCallXhr.status == 204) {
+    if (apiCallXhr.status === 200 || apiCallXhr.status === 204) {
         configurePostApiSuccess(apiCallXhr.responseText);
     } else if (apiCallXhr.status === 400) {
         configurePostApiValidationError(apiCallXhr.responseText);
@@ -216,7 +216,7 @@ function configurePostApiValidationError(json) {
 }
 function showErrors(errors) {
     // Return if no errors
-    if (!errors || errors.length == 0)
+    if (!errors || errors.length === 0)
         return;
 
     // Show the error details
@@ -235,9 +235,10 @@ function recalculateResults() {
     // Count total votes cast
     var totalCast = 0;
     var votes = [];
-    for (var i = 0; i < referendum.Answers.length; i++)
+    var i;
+    for (i = 0; i < referendum.Answers.length; i++)
         votes.push(0);
-    for (var i = 0; i < referendum.Electorate.length; i++) {
+    for (i = 0; i < referendum.Electorate.length; i++) {
         var voter = referendum.Electorate[i];
         if (voter.Vote < 1)
             continue;
@@ -248,17 +249,17 @@ function recalculateResults() {
     // Add the results pane
     var results = document.getElementById('results');
     results.innerHTML = null;
-    for (var i = 0; i < referendum.Answers.length; i++) {
+    for (i = 0; i < referendum.Answers.length; i++) {
         // Get voting results so far for this vote
         var voteCount = votes[i];
-        var percentage = totalCast == 0 ? '0%' : ((voteCount / totalCast) * 100).toFixed(1) + '%';
+        var percentage = totalCast === 0 ? '0%' : ((voteCount / totalCast) * 100).toFixed(1) + '%';
 
         // Create the HTML for the voting percentage bar
         var p = document.createElement("p");
         var labelText = referendum.Answers[i];
-        if (voteCount == 0)
+        if (voteCount === 0)
             labelText = referendum.Answers[i] + ' (no votes)';
-        else if (voteCount == 1)
+        else if (voteCount === 1)
             labelText = referendum.Answers[i] + ' (1 vote)';
         else
             labelText = referendum.Answers[i] + ' (' + voteCount + ' votes)';
@@ -280,17 +281,18 @@ function recalculateResults() {
 function recalculateVoters() {
     // Clear the table first
     var voterTable = document.getElementById('voterTable').getElementsByTagName('tbody')[0];;
-    for (var i = voterTable.rows.length - 1; i >= 0; i--)
+    var i;
+    for (i = voterTable.rows.length - 1; i >= 0; i--)
         voterTable.deleteRow(i);
 
     // Add the voters
     var showCastOnly = document.getElementById('showCastOnly').checked;
-    for (var i = 0; i < referendum.Electorate.length; i++) {
+    for (i = 0; i < referendum.Electorate.length; i++) {
         // Skip this voter if they haven't voted and we've got show cast only enabled
         var voter = referendum.Electorate[i];
         if (voter.Vote < 1 && showCastOnly)
             continue;
-        var vote = voter.Vote == 0 ? ' ' : referendum.Answers[voter.Vote - 1];
+        var vote = voter.Vote === 0 ? ' ' : referendum.Answers[voter.Vote - 1];
 
         // Add the voter data
         var row = voterTable.insertRow(voterTable.rows.length);
@@ -303,7 +305,8 @@ function recalculateVoters() {
         voteCell.innerText = vote;
 
         // Add signature data
-        signatureCell.innerHTML = voter.Vote == 0 ? '' : '<a href="javascript:copySignature(\'' + voter.SignedVoteMessage + '\');">Copy</a>';
+        var message = 'R' + id + ' V' + voter.Vote + ' ' + voter.Address;
+        signatureCell.innerHTML = voter.Vote === 0 ? '' : '<a href="javascript:copySignature(\'' + voter.SignedVoteMessage + '\');">copy signature</a> &nbsp; <a href="javascript:copySignature(\'' + message + '\');">copy message</a>';
     }
 }
 
@@ -323,7 +326,7 @@ function performVote() {
         document.getElementById('voteAddress').classList.add('validation-error');
         errors.push('Your Ethereum address is required');
     }
-    else if (address.length != 42) {
+    else if (address.length !== 42) {
         document.getElementById('voteAddress').classList.add('validation-error');
         errors.push('Your Ethereum address is not valid');
     }
@@ -331,9 +334,9 @@ function performVote() {
         var found = false;
         for (var i = 0; i < referendum.Electorate.length; i++) {
             var voter = referendum.Electorate[i];
-            if (voter.Address != address)
+            if (voter.Address !== address)
                 continue;
-            if (voter.VoteCount == 0)
+            if (voter.VoteCount === 0)
                 continue;
             found = true;
             break;
@@ -350,6 +353,24 @@ function performVote() {
     if (!signature) {
         document.getElementById('signature').classList.add('validation-error');
         errors.push('Your need to sign your vote');
+    }
+    else if (!signature.startsWith("0x")) {
+        // Here we need to try and parse the MEW response out
+        try {
+            var mewSignature = JSON.parse(signature);
+            signature = mewSignature.sig;
+            if (!signature) {
+                document.getElementById('signature').classList.add('validation-error');
+                errors.push('Your signature must be in either MyEtherWallet or hex format');
+            }
+        } catch (e) {
+            document.getElementById('signature').classList.add('validation-error');
+            errors.push('Your signature must be in either MyEtherWallet or hex format');
+        }
+    }
+    if (signature && signature.length !== 132) {
+        document.getElementById('signature').classList.add('validation-error');
+        errors.push('Your signature\'s hex string is not the correct length');
     }
 
     // Show any errors we have
@@ -379,7 +400,7 @@ function performVote() {
         // Update our record locally for this voter
         for (var i = 0; i < referendum.Electorate.length; i++) {
             var voter = referendum.Electorate[i];
-            if (voter.Address != address)
+            if (voter.Address !== address)
                 continue;
             voter.Vote = answer;
             voter.SignedVoteMessage = signature;
@@ -396,11 +417,4 @@ function performVote() {
         document.getElementById("disabledOverlay").style.display = "none";
     }
     apiCallXhr.send(JSON.stringify(request));
-
-    // At this point it looks good from a client-side perspective so submit it 
-    /*
-        - Red outline for errors
-        - Backend validates vote dates, Ethereum address / empty values and validation response if appropriate
-        - Backend validates signature - error response if not correct
-    */
 }
