@@ -128,7 +128,7 @@ namespace Lts.Sift.Voting.Api
                     try
                     {
                         MessageSigner signer = new MessageSigner();
-                        string message = "R" + id + " V" + request.Vote + " " + request.Address;
+                        string message = "R" + id + " V" + request.Vote + " " + request.Address.ToLower();
                         string v1Address = signer.EcRecover(new Nethereum.Util.Sha3Keccack().CalculateHash(Encoding.UTF8.GetBytes(message)), request.SignedVoteMessage);
                         string v2Address = signer.EcRecover(new Nethereum.Util.Sha3Keccack().CalculateHash(Encoding.UTF8.GetBytes("\u0019Ethereum Signed Message:\n" + message.Length + message)), request.SignedVoteMessage);
                         if (v1Address.ToLower() != request.Address.ToLower() && v2Address.ToLower() != request.Address.ToLower())

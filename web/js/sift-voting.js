@@ -133,7 +133,7 @@ function recalculateMessageToSign() {
     var index = document.getElementById('voteAnswer').selectedIndex;
     var address = document.getElementById('voteAddress').value;
     if (index >= 0 && id && address)
-        msg = 'R' + id + ' V' + (index + 1) + ' ' + address;
+        msg = 'R' + id + ' V' + (index + 1) + ' ' + address.toLowerCase();
     document.getElementById('messageToSign').value = msg;
 }
 
@@ -305,7 +305,7 @@ function recalculateVoters() {
         voteCell.innerText = vote;
 
         // Add signature data
-        var message = 'R' + id + ' V' + voter.Vote + ' ' + voter.Address;
+        var message = 'R' + id + ' V' + voter.Vote + ' ' + voter.Address.toLowerCase();
         signatureCell.innerHTML = voter.Vote === 0 ? '' : '<a href="javascript:copySignature(\'' + voter.SignedVoteMessage + '\');">copy signature</a> &nbsp; <a href="javascript:copySignature(\'' + message + '\');">copy message</a>';
     }
 }
