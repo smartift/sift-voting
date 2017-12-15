@@ -9,6 +9,11 @@ namespace Lts.Sift.Voting.Api
     {
         #region Properties
         /// <summary>
+        /// Gets the ID of the referendum that this voter belongs to.
+        /// </summary>
+        public int Id { get; private set; }
+
+        /// <summary>
         /// Gets the address of this voter.
         /// </summary>
         public string Address { get; private set; }
@@ -29,11 +34,13 @@ namespace Lts.Sift.Voting.Api
         public string SignedVoteMessage { get; private set; }
         #endregion
 
-
         #region Constructors
         /// <summary>
         /// Create a new instance of this class.
         /// </summary>
+        /// <param name="id">
+        /// The ID of the referendum that this voter belongs to.
+        /// </param>
         /// <param name="address">
         /// The address of this voter.
         /// </param>
@@ -47,8 +54,9 @@ namespace Lts.Sift.Voting.Api
         /// The signed vote message that this voter used to cast their vote.
         /// </param>
         [StoredProcedureDataSetConstructor]
-        public ReferendumGetVoterRow(string address, int voteCount, int vote, string signedVoteMessage)
+        public ReferendumGetVoterRow(int id, string address, int voteCount, int vote, string signedVoteMessage)
         {
+            Id = id;
             Address = address;
             VoteCount = voteCount;
             Vote = vote;

@@ -1,4 +1,4 @@
-var baseUrl = "https://lts-api.com/sift-voting/1/";
+var baseUrl = "http://localhost:60000/sift-voting/1/";
 var apiCallXhr = null;
 var referendum = null;
 var id = null;
@@ -41,10 +41,42 @@ function indexPageLoad() {
         var responseObject = JSON.parse(json);
         var voteList = document.getElementById("voteList");
         for (var i = 0; i < responseObject.length; i++) {
-            var li = document.createElement("li");
+            var div = document.createElement("div");
             referendum = responseObject[i];
-            li.innerHTML = '<a href="referendum.html?id=' + referendum.Id + '">' + referendum.Question + '</a>';
-            voteList.appendChild(li);
+            div.className = 'containerBox';
+            var h2 = document.createElement("h1");
+            var a = document.createElement("a");
+            a.innerText = referendum.Question;
+            a.href = 'referendum.html?id=' + referendum.Id;
+            voteList.appendChild(div);
+            div.appendChild(h2);
+            h2.appendChild(a);
+            for (var j = 0; j < referendum.Answers.length; j++) {
+                // Create the HTML for the voting percentage bar
+                var p = document.createElement("p");
+                var labelText = referendum.Answers[j];
+                var voteCount = referendum.VoteCount[j];
+                var percentage = referendum.VotePercentages[j] + '%';
+                if (voteCount === 0)
+                    labelText = referendum.Answers[j] + ' (no votes)';
+                else if (voteCount === 1)
+                    labelText = referendum.Answers[j] + ' (1 vote)';
+                else
+                    labelText = referendum.Answers[j] + ' (' + voteCount + ' votes)';
+                p.innerText = labelText;
+                div.appendChild(p);
+                var outerDiv = document.createElement("div");
+                outerDiv.className = "percentage-background";
+                p.appendChild(outerDiv);
+                var innerDiv = document.createElement("div");
+                innerDiv.className = "percentage-inside";
+                innerDiv.style.width = percentage;
+                var span = document.createElement("span");
+                span.innerText = percentage;
+                innerDiv.appendChild(span);
+                outerDiv.appendChild(innerDiv);
+                div.appendChild(outerDiv);
+            }
         }
         document.getElementById("disabledOverlay").style.display = "none";
     }
@@ -401,7 +433,7 @@ function performVote() {
         // Update our record locally for this voter
         for (var i = 0; i < referendum.Electorate.length; i++) {
             var voter = referendum.Electorate[i];
-            if (voter.Address !== address)
+            if (voter.Address.toLowerCase() !== address.toLowerCase())
                 continue;
             voter.Vote = answer;
             voter.SignedVoteMessage = signature;

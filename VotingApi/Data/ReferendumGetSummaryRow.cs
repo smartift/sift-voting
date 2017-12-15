@@ -11,6 +11,7 @@ namespace Lts.Sift.Voting.Api
         #region Properties
         /// <summary>
         /// Gets the unique ID for this referendum
+        /// </summary>
         public int Id { get; private set; }
 
         /// <summary>

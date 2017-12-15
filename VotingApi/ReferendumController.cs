@@ -185,7 +185,10 @@ namespace Lts.Sift.Voting.Api
         {
             using (ReferendumRepository repo = new ReferendumRepository())
             {
-                Referendum[] referendums = repo.GetSummaries();
+                Referendum[] referendums = repo.GetAll();
+                if (referendums != null)
+                    foreach (Referendum referendum in referendums)
+                        referendum.StripVoters();
                 return requestMessage.CreateResponse(HttpStatusCode.OK, referendums);
             }
         }

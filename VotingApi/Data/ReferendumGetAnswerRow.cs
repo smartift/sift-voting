@@ -9,6 +9,11 @@ namespace Lts.Sift.Voting.Api
     {
         #region Properties
         /// <summary>
+        /// Gets the ID of the referendum that this answer belongs to.
+        /// </summary>
+        public int Id { get; private set; }
+
+        /// <summary>
         /// Gets a possible answer to the voting question.
         /// </summary>
         public string Answer { get; private set; }
@@ -22,8 +27,9 @@ namespace Lts.Sift.Voting.Api
         /// A possible answer to the voting question.
         /// </param>
         [StoredProcedureDataSetConstructor]
-        public ReferendumGetAnswerRow(string answer)
+        public ReferendumGetAnswerRow(int id, string answer)
         {
+            Id = id;
             Answer = answer;
         }
         #endregion

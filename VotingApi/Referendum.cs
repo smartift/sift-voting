@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Lts.Sift.Voting.Api
 {
@@ -10,6 +11,7 @@ namespace Lts.Sift.Voting.Api
         #region Properties
         /// <summary>
         /// Gets the unique ID for this referendum
+        /// </summary>
         public int Id { get; private set; }
 
         /// <summary>
@@ -26,7 +28,7 @@ namespace Lts.Sift.Voting.Api
         /// Gets the time that this vote was created (in UTC).
         /// </summary>
         public DateTime CreateTime { get; private set; }
-        
+
         /// <summary>
         /// Gets the text of this voting question.
         /// </summary>
@@ -36,6 +38,16 @@ namespace Lts.Sift.Voting.Api
         /// Gets a list of possible answers for this voting question.
         /// </summary>
         public string[] Answers { get; private set; }
+
+        /// <summary>
+        /// Gets the number of votes cast for each of the answers.
+        /// </summary>
+        public int[] VoteCount { get; private set; }
+
+        /// <summary>
+        /// Gets the percentage of the voting electorate that have voted for each of the answers.  Each index matches the corresponding answer.
+        /// </summary>
+        public decimal[] VotePercentages { get; private set; }
 
         /// <summary>
         /// Gets a list of voters that are eligible to vote and how they voted.
@@ -77,7 +89,27 @@ namespace Lts.Sift.Voting.Api
             Answers = answers;
             Electorate = electorate;
             CreateTime = createTime;
+            if (answers.Length > 0)
+            {
+                VoteCount = new int[answers.Length];
+                VotePercentages = new decimal[answers.Length];
+                int totalVotes = electorate.Where(el => el.Vote > 0).Sum(el => el.VoteCount);
+                if (totalVotes > 0)
+                    for (int i = 0; i < answers.Length; i++)
+                    {
+                        VoteCount[i] = electorate.Where(el => el.Vote == i + 1).Sum(el => el.VoteCount);
+                        VotePercentages[i] = Math.Round(((decimal)VoteCount[i] / (decimal)totalVotes) * 100m, 1);
+                    }
+            }
         }
         #endregion
+
+        /// <summary>
+        /// Strips electorate details from the referendum to create a more compact object when summarised are sufficient.
+        /// </summary>
+        internal void StripVoters()
+        {
+            Electorate = null;
+        }
     }
 }

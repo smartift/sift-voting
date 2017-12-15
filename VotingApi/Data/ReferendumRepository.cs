@@ -46,14 +46,16 @@ namespace Lts.Sift.Voting.Api
         /// <returns>
         /// An array of all referendums from the database.
         /// </returns>
-        public Referendum[] GetSummaries()
+        public Referendum[] GetAll()
         {
-            using (StoredProcedureDataSetReader reader = ExecuteProcedureReader(new ReferendumGetSummariesStoredProcedure()))
+            using (StoredProcedureDataSetReader reader = ExecuteProcedureReader(new ReferendumGetAllStoredProcedure()))
             {
                 ReferendumGetSummaryRow[] summaryRows = reader.GetDataSetList<ReferendumGetSummaryRow>();
                 if (summaryRows == null)
                     return null;
-                return summaryRows.Select(r => new Referendum(r.Id, r.StartTime, r.EndTime, r.Question, null, null, r.CreateTime)).ToArray();
+                ReferendumGetAnswerRow[] answerRows = reader.GetDataSetList<ReferendumGetAnswerRow>();
+                ReferendumGetVoterRow[] voterRows = reader.GetDataSetList<ReferendumGetVoterRow>();
+                return summaryRows.Select(r => new Referendum(r.Id, r.StartTime, r.EndTime, r.Question, answerRows.Where(ar => ar.Id == r.Id).Select(ar => ar.Answer).ToArray(), voterRows.Where(vr => vr.Id == r.Id).Select(vr => new Voter(vr.Address, vr.VoteCount, vr.Vote, vr.SignedVoteMessage)).ToArray(), r.CreateTime)).ToArray();
             }
         }
 
