@@ -120,7 +120,7 @@ function votePageLoad() {
         // First, let's determine whether the vote is open, closed or not yet open and set visibilities accordingly
         var openTime = Date.parse(referendum.StartTime);
         var closeTime = Date.parse(referendum.EndTime);
-        var now = new Date().getTime();
+        var now = Date.parse(new Date().toUTCString());
         if (now < openTime) {
             document.getElementById('votingNotOpenSection').style.display = null;
             document.getElementById('voteOpensTime').innerText = referendum.StartTime;
