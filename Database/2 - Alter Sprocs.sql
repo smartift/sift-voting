@@ -35,3 +35,23 @@ BEGIN
 	-- Return OK
 END
 GO
+
+
+ALTER PROCEDURE ReferendumGet
+(
+	@id INT
+)
+AS
+BEGIN
+	-- Turn off row count
+	SET NOCOUNT ON
+
+	-- Lookup the referendum, then answers then voters as three datasets
+	SELECT TOP 1 Id, Question, StartTime, EndTime, CreateTime FROM Referendum WHERE Id = @id
+	SELECT @id Id, Answer FROM ReferendumAnswer WHERE ReferendumId = @id ORDER BY DisplayOrder ASC
+	SELECT @id Id, [Address], VoteCount, Vote, SignedVoteMessage FROM Voter WHERE ReferendumId = @id ORDER BY VoteCount DESC
+
+	-- Return OK
+	return 0
+END
+GO
