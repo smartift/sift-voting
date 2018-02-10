@@ -37,14 +37,14 @@
     <Reference Include="BouncyCastle.Crypto, Version=1.8.1.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
       <HintPath>..\packages\Portable.BouncyCastle.1.8.1.3\lib\net40\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
-    <Reference Include="Guytp.Data, Version=1.0.638.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Guytp.Data.1.0.638.0\lib\net452\Guytp.Data.dll</HintPath>
+    <Reference Include="Guytp.Data, Version=1.0.797.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Guytp.Data.1.0.797.0\lib\net452\Guytp.Data.dll</HintPath>
     </Reference>
-    <Reference Include="Guytp.Logging, Version=1.0.231.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Guytp.Logging.1.0.231.0\lib\net45\Guytp.Logging.dll</HintPath>
+    <Reference Include="Guytp.Logging, Version=1.0.791.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Guytp.Logging.1.0.791.0\lib\net45\Guytp.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="Guytp.WebApi, Version=1.0.636.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Guytp.WebApi.1.0.636.0\lib\net452\Guytp.WebApi.dll</HintPath>
+    <Reference Include="Guytp.WebApi, Version=1.0.795.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Guytp.WebApi.1.0.795.0\lib\net452\Guytp.WebApi.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.IdentityModel.Logging, Version=1.0.0.127, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.IdentityModel.Logging.1.0.0\lib\net451\Microsoft.IdentityModel.Logging.dll</HintPath>
