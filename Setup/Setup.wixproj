@@ -40,4 +40,7 @@
 	<Target Name="AfterBuild">
 	</Target>
 	-->
+	<PropertyGroup>
+        <SuppressValidation>true</SuppressValidation>
+    </PropertyGroup>
 </Project>
