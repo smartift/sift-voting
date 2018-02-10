@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Product Id="*" Name="SIFT Voting API (Level 1)" Language="1033" Version="1.0.0" Manufacturer="Logical Trading Systems Limited" UpgradeCode="0f157e09-5af7-46c0-9b8e-bc41f9b9d9ef">
+    <Package InstallerVersion="200" Description="This API allows SIFT-holders to vote in referendums" Compressed="yes" InstallScope="perMachine" InstallPrivileges="elevated" Manufacturer="Logical Trading Systems Limited" />
+
+    <!-- Single CAB used to store all contents -->
+    <Media Id="1" Cabinet="SiftVotingApi.cab" EmbedCab="yes" />
+
+    <!-- The core component includes everything required for MetaTrader -->
+    <Feature Id="CoreFeature" Title="Core Functionality" Level="1">
+      <ComponentGroupRef Id="ServiceComponent" />
+    </Feature>
+
+    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <Property Id="CONFIG_BINDING_URI" Value="http://+" />
+    <Property Id="CONFIG_EXCEPTIONS_INCLUDE_STACK_TRACE" Value="true" />
+    <Property Id="CONFIG_JWT_CERT_DN" Value="CN=sso.lts-api.com" />
+    <Property Id="CONFIG_JWT_AUDIENCE" Value="urn:com.lts-api" />
+    <Property Id="CONFIG_JWT_ISSUER" Value="urn:com.lts-api.sso" />
+    <Property Id="CONFIG_CONNECTION_STRING" Value="Server=localhost; Database=SiftReferendum; Trusted_Connection=True; Application Name=SIFT Voting API" />
+    <Property Id="CONFIG_LOGGING_CONSOLE_DEBUG" Value="false" />
+    <Property Id="CONFIG_LOGGING_CONSOLE_INFO" Value="true" />
+    <Property Id="CONFIG_LOGGING_CONSOLE_WARNING" Value="true" />
+    <Property Id="CONFIG_LOGGING_CONSOLE_ERROR" Value="true" />
+    <Property Id="CONFIG_LOGGING_EVENTFIRING_DEBUG" Value="false" />
+    <Property Id="CONFIG_LOGGING_EVENTFIRING_INFO" Value="true" />
+    <Property Id="CONFIG_LOGGING_EVENTFIRING_WARNING" Value="true" />
+    <Property Id="CONFIG_LOGGING_EVENTFIRING_ERROR" Value="true" />
+    <Property Id="CONFIG_LOGGING_FILEWRITING_DEBUG" Value="false" />
+    <Property Id="CONFIG_LOGGING_FILEWRITING_INFO" Value="true" />
+    <Property Id="CONFIG_LOGGING_FILEWRITING_WARNING" Value="true" />
+    <Property Id="CONFIG_LOGGING_FILEWRITING_ERROR" Value="true" />
+    <Property Id="CONFIG_LOGGING_FILEWRITING_LOGPATH" Value="c:\logs\lts" />
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLDIR" Name="SIFT Voting API (Level 1)" />
+      </Directory>
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <!-- The service configuration files -->
+    <ComponentGroup Id="ServiceComponent" Directory="INSTALLDIR">
+      <Component Id="cmp_Guytp.Data.dll" Guid="*">
+        <File Id="Guytp.Data.dll" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\Guytp.Data.dll" />
+      </Component>
+      <Component Id="cmp_Guytp.Logging.dll" Guid="*">
+        <File Id="Guytp.Logging.dll" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\Guytp.Logging.dll" />
+      </Component>
+      <Component Id="cmp_Guytp.WebApi.dll" Guid="*">
+        <File Id="Guytp.WebApi.dll" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\Guytp.WebApi.dll" />
+      </Component>
+      <Component Id="cmp_sift_votingapi.exe" Guid="*">
+        <File Id="sift_votingapi.exe" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\sift-votingapi.exe" />
+        <ServiceInstall Vital="yes" ErrorControl="normal" Type="ownProcess" DisplayName="LTS Platform API" Description="This API allows SIFT-holders to vote in referendums" Name="SiftVoting" Start="auto" Account="[SERVICE_USERNAME]" Password="[SERVICE_PASSWORD]" Id="LTS_SERVICE">
+        </ServiceInstall>
+        <ServiceControl Id="LTS_SERVICE_START" Remove="both" Name="SiftVoting" Start="install" Stop="both" Wait="yes" />
+      </Component>
+      <Component Id="cmp_sift_votingapi.exe.config" Guid="*">
+        <File Id="sift_votingapi.exe.config" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\sift-votingapi.exe.config" />
+        <util:XmlFile Id="CONFIG_FILE_UPDATER_BINDING_URI" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_BINDING_URI]" ElementPath="/configuration/webapi_configuration/settings" Name="binding_uri" />
+        <util:XmlFile Id="CONFIG_FILE_UPDATER_EXCEPTIONS_INCLUDE_STACK_TRACE" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_EXCEPTIONS_INCLUDE_STACK_TRACE]" ElementPath="/configuration/webapi_configuration/exception_handling" Name="include_stack_trace" />
+        <util:XmlFile Id="CONFIG_FILE_UPDATER_JWT_CERT_DN" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_JWT_CERT_DN]" ElementPath="/configuration/webapi_configuration/jwt_authentication" Name="certificate_distinguished_name" />
+        <util:XmlFile Id="CONFIG_FILE_UPDATER_JWT_AUDIENCE" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_JWT_AUDIENCE]" ElementPath="/configuration/webapi_configuration/jwt_authentication" Name="audience" />
+        <util:XmlFile Id="CONFIG_FILE_UPDATER_JWT_ISSUER" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_JWT_ISSUER]" ElementPath="/configuration/webapi_configuration/jwt_authentication" Name="issuer" />
+        <util:XmlFile Id="CONFIG_FILE_UPDATER_CONNECTION_STRING" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_CONNECTION_STRING]" ElementPath="/configuration/connectionStrings/add[\[]@name=&apos;DataFeedReader&apos;[\]]" Name="connectionString" />
+        <util:XmlFile Id="CONFIG_FILE_LOGGING_CONSOLE_DEBUG" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_LOGGING_CONSOLE_DEBUG]" ElementPath="/configuration/logging_settings/console_provider" Name="debug" />
+        <util:XmlFile Id="CONFIG_FILE_LOGGING_CONSOLE_INFO" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_LOGGING_CONSOLE_INFO]" ElementPath="/configuration/logging_settings/console_provider" Name="info" />
+        <util:XmlFile Id="CONFIG_FILE_LOGGING_CONSOLE_WARNING" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_LOGGING_CONSOLE_WARNING]" ElementPath="/configuration/logging_settings/console_provider" Name="warning" />
+        <util:XmlFile Id="CONFIG_FILE_LOGGING_CONSOLE_ERROR" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_LOGGING_CONSOLE_ERROR]" ElementPath="/configuration/logging_settings/console_provider" Name="error" />
+        <util:XmlFile Id="CONFIG_FILE_LOGGING_EVENTFIRING_DEBUG" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_LOGGING_EVENTFIRING_DEBUG]" ElementPath="/configuration/logging_settings/event_firing_provider" Name="debug" />
+        <util:XmlFile Id="CONFIG_FILE_LOGGING_EVENTFIRING_INFO" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_LOGGING_EVENTFIRING_INFO]" ElementPath="/configuration/logging_settings/event_firing_provider" Name="info" />
+        <util:XmlFile Id="CONFIG_FILE_LOGGING_EVENTFIRING_WARNING" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_LOGGING_EVENTFIRING_WARNING]" ElementPath="/configuration/logging_settings/event_firing_provider" Name="warning" />
+        <util:XmlFile Id="CONFIG_FILE_LOGGING_EVENTFIRING_ERROR" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_LOGGING_EVENTFIRING_ERROR]" ElementPath="/configuration/logging_settings/event_firing_provider" Name="error" />
+        <util:XmlFile Id="CONFIG_FILE_LOGGING_FILEWRITING_DEBUG" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_LOGGING_FILEWRITING_DEBUG]" ElementPath="/configuration/logging_settings/file_writing_provider" Name="debug" />
+        <util:XmlFile Id="CONFIG_FILE_LOGGING_FILEWRITING_INFO" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_LOGGING_FILEWRITING_INFO]" ElementPath="/configuration/logging_settings/file_writing_provider" Name="info" />
+        <util:XmlFile Id="CONFIG_FILE_LOGGING_FILEWRITING_WARNING" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_LOGGING_FILEWRITING_WARNING]" ElementPath="/configuration/logging_settings/file_writing_provider" Name="warning" />
+        <util:XmlFile Id="CONFIG_FILE_LOGGING_FILEWRITING_ERROR" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_LOGGING_FILEWRITING_ERROR]" ElementPath="/configuration/logging_settings/file_writing_provider" Name="error" />
+        <util:XmlFile Id="CONFIG_FILE_LOGGING_FILEWRITING_LOGPATH" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_LOGGING_FILEWRITING_LOGPATH]" ElementPath="/configuration/logging_settings/file_writing_provider" Name="log_path" />
+        <util:XmlFile Id="CONFIG_FILE_SWAGGER_OVERRIDE_ROOT_URL" Action="setValue" File="[INSTALLDIR]sift-votingapi.exe.config" Permanent="no" Value="[CONFIG_SWAGGER_OVERRIDE_ROOT_URL]" ElementPath="/configuration/webapi_configuration/swagger" Name="override_root_url" />
+      </Component>
+      <Component Id="cmp_sift_votingapi.pdb" Guid="*">
+        <File Id="sift_votingapi.pdb" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\sift-votingapi.pdb" />
+      </Component>
+      <Component Id="cmp_SiftVoting.xml" Guid="*">
+        <File Id="SiftVoting.xml" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\sift-votingapi.xml" />
+      </Component>
+      <Component Id="cmp_BouncyCastle.crypto.dll" Guid="*">
+        <File Id="BouncyCastle.crypto.dll" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\BouncyCastle.crypto.dll" />
+      </Component>
+      <Component Id="cmp_Nethereum.Portable.dll" Guid="*">
+        <File Id="Nethereum.Portable.dll" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\Nethereum.Portable.dll" />
+      </Component>
+
+      <Component Id="cmp2477A815463E3B8D69A102BE35D90968" Guid="*">
+        <File Id="filD991931FA078974C5C97BD544999363C" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\Microsoft.IdentityModel.Logging.dll" />
+      </Component>
+      <Component Id="cmp351919509EB5D2C7BB129B6D115E7C8D" Guid="*">
+        <File Id="fil3E86B9F7AB3C499DE0A91FCACB919252" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\Microsoft.IdentityModel.Tokens.dll" />
+      </Component>
+      <Component Id="cmp09CC8B2D571E9921EF6FF27C6188695B" Guid="*">
+        <File Id="filA5B6B1EE55196A48EB301434BBBF65C0" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\Microsoft.Owin.Cors.dll" />
+      </Component>
+      <Component Id="cmpC7BC2CB5A0A63501D89C7D7BC6DCB97B" Guid="*">
+        <File Id="fil0B50BC7111AADC2B0C0D576F0FFB29C3" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\Microsoft.Owin.dll" />
+      </Component>
+      <Component Id="cmp1CAF53E1325D6DE1FF0C6B1DC686F2EC" Guid="*">
+        <File Id="fil0C18A1FCD00961A9BACE19A4E8EB3D4B" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\Microsoft.Owin.Host.HttpListener.dll" />
+      </Component>
+      <Component Id="cmp4A19503B4C88966032CA75F37FF921A8" Guid="*">
+        <File Id="filFC6E8BAF5AF7B019D3F1B6C17FCDC101" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\Microsoft.Owin.Hosting.dll" />
+      </Component>
+      <Component Id="cmpE48528C4F5932A4EFD89F7331108F45D" Guid="*">
+        <File Id="filF1B84C2C6BCC693224B7A7959445B74F" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\Newtonsoft.Json.dll" />
+      </Component>
+      <Component Id="cmp060E0EAB19A08B32377F04956A2BAA1F" Guid="*">
+        <File Id="fil997A5C3BF9E356D4D06B9EC2DAC04313" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\Owin.dll" />
+      </Component>
+      <Component Id="cmp58FDE8E51D42EF3345A33D3DA87ACD3B" Guid="*">
+        <File Id="fil890DC5131A1AEE4E04BEFD4D0D04AB3E" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\RouteMagic.dll" />
+      </Component>
+      <Component Id="cmp00D005757877997E6B11907683C4F331" Guid="*">
+        <File Id="filB6FBF744819AE1F4998D0D121183DA39" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\Swashbuckle.Core.dll" />
+      </Component>
+      <Component Id="cmpB73DDBDAB693CA75E7E8BDE079AFA00A" Guid="*">
+        <File Id="filBDA3E5976B5C5E667BB4A98D489083C9" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\System.IdentityModel.Tokens.Jwt.dll" />
+      </Component>
+      <Component Id="cmpA186F2759A331A476249069E7174C01F" Guid="*">
+        <File Id="fil8C2239C6C3A304A85DF686432252CA24" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\System.IdentityModel.Tokens.Jwt.pdb" />
+      </Component>
+      <Component Id="cmpEA91C11143DFF811F6600626A763E59E" Guid="*">
+        <File Id="filFEB315C3C6B699CE2FC29308C8D97E21" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\System.Net.Http.Formatting.dll" />
+      </Component>
+      <Component Id="cmpED14316F6DE38D199E923D25CEEA540E" Guid="*">
+        <File Id="fil2CDC593D885D20F9ABDF518168DABC41" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\System.Web.Cors.dll" />
+      </Component>
+      <Component Id="cmpE14FFAF1F3ACC5839D1BCCE279CE198E" Guid="*">
+        <File Id="fil37EEDCF7DFCD64074480DE2736B458B9" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\System.Web.Http.dll" />
+      </Component>
+      <Component Id="cmp65878A44BDE4CCD0005EA15F490424EA" Guid="*">
+        <File Id="filC824513C3A271E27450246D0A54B50B9" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\System.Web.Http.Owin.dll" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>
