@@ -56,7 +56,7 @@
       </Component>
       <Component Id="cmp_sift_votingapi.exe" Guid="*">
         <File Id="sift_votingapi.exe" KeyPath="yes" Source="$(var.SolutionDir)\VotingApi\bin\$(var.Configuration)\sift-votingapi.exe" />
-        <ServiceInstall Vital="yes" ErrorControl="normal" Type="ownProcess" DisplayName="LTS Platform API" Description="This API allows SIFT-holders to vote in referendums" Name="SiftVoting" Start="auto" Account="[SERVICE_USERNAME]" Password="[SERVICE_PASSWORD]" Id="LTS_SERVICE">
+        <ServiceInstall Vital="yes" ErrorControl="normal" Type="ownProcess" DisplayName="SIFT Voting API" Description="This API allows SIFT-holders to vote in referendums" Name="SiftVoting" Start="auto" Account="[SERVICE_USERNAME]" Password="[SERVICE_PASSWORD]" Id="LTS_SERVICE">
         </ServiceInstall>
         <ServiceControl Id="LTS_SERVICE_START" Remove="both" Name="SiftVoting" Start="install" Stop="both" Wait="yes" />
       </Component>
