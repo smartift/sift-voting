@@ -77,5 +77,15 @@ if ($process.ExitCode -ne 0)
     Write-Error "Failed to install service, terminating release"
 }
 
+# Start  service
+if (Get-Service $serviceName -ErrorAction SilentlyContinue) {
+	if ((Get-Service $serviceName).Status -ne "Running") {
+	  Start-Service $serviceName
+	  Write-Verbose "Starting $serviceName"
+	}
+} else {
+	Write-Host "$serviceName not found"
+}
+
 # We're done
 Write-Verbose "Release was successful"
