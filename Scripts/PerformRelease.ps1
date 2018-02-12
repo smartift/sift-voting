@@ -49,7 +49,6 @@ else
 {
     Write-Verbose ("Database " + $databaseName + " on " + $databaseServer + " does not exist, skipping backup...")
 }
-Write-Verbose("Skipping database backup")
 
 # Now we apply deltas
 Write-Verbose "Applying database deltas..."
