@@ -131,7 +131,8 @@ namespace Lts.Sift.Voting.Api
                         string message = "R" + id + " V" + request.Vote + " " + request.Address.ToLower();
                         string v1Address = signer.EcRecover(new Nethereum.Util.Sha3Keccack().CalculateHash(Encoding.UTF8.GetBytes(message)), request.SignedVoteMessage);
                         string v2Address = signer.EcRecover(new Nethereum.Util.Sha3Keccack().CalculateHash(Encoding.UTF8.GetBytes("\u0019Ethereum Signed Message:\n" + message.Length + message)), request.SignedVoteMessage);
-                        if (v1Address.ToLower() != request.Address.ToLower() && v2Address.ToLower() != request.Address.ToLower())
+                        string trezorAddress = signer.EcRecover(new Nethereum.Util.Sha3Keccack().CalculateHash(Encoding.UTF8.GetBytes("\u0019Ethereum Signed Message:\n" + char.ConvertFromUtf32(message.Length) + message)), request.SignedVoteMessage);
+                        if (v1Address.ToLower() != request.Address.ToLower() && v2Address.ToLower() != request.Address.ToLower() && trezorAddress.ToLower() != request.Address.ToLower())
                         {
                             invalidFields.Add("signature");
                             errorMessages.Add("Your signature is not correct");
